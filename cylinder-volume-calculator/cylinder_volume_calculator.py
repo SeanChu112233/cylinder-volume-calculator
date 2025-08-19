@@ -1,80 +1,48 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": None,
-   "id": "434735ea-b49f-46df-be95-c23cc0f1b19d",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "import streamlit as st\n",
-    "import math\n",
-    "\n",
-    "def calculate_volume(diameter, length, unit):\n",
-    "    radius = diameter / 2\n",
-    "    volume = math.pi * (radius ** 2) * length\n",
-    "    \n",
-    "    if unit == \"mm\":\n",
-    "        # 转换为立方米\n",
-    "        volume_m3 = volume / (1000 ** 3)\n",
-    "        return volume, volume_m3\n",
-    "    else:  # inch\n",
-    "        # 转换为立方英尺\n",
-    "        volume_ft3 = volume / (12 ** 3)\n",
-    "        return volume, volume_ft3\n",
-    "\n",
-    "def main():\n",
-    "    st.title(\"圆柱桩载体体积计算器\")\n",
-    "    st.write(\"输入直径和长度来计算圆柱体积\")\n",
-    "    \n",
-    "    # 单位选择\n",
-    "    unit = st.radio(\"选择单位:\", (\"mm\", \"inch\"))\n",
-    "    \n",
-    "    # 输入字段\n",
-    "    col1, col2 = st.columns(2)\n",
-    "    \n",
-    "    with col1:\n",
-    "        diameter = st.number_input(f\"直径 ({unit})\", min_value=0.0, value=100.0, step=0.1)\n",
-    "    \n",
-    "    with col2:\n",
-    "        length = st.number_input(f\"长度 ({unit})\", min_value=0.0, value=1000.0, step=0.1)\n",
-    "    \n",
-    "    # 计算按钮\n",
-    "    if st.button(\"计算体积\"):\n",
-    "        volume, converted_volume = calculate_volume(diameter, length, unit)\n",
-    "        \n",
-    "        st.success(\"计算结果:\")\n",
-    "        st.write(f\"圆柱体积: {volume:,.2f} {unit}³\")\n",
-    "        \n",
-    "        if unit == \"mm\":\n",
-    "            st.write(f\"转换为立方米: {converted_volume:,.6f} m³\")\n",
-    "        else:\n",
-    "            st.write(f\"转换为立方英尺: {converted_volume:,.6f} ft³\")\n",
-    "\n",
-    "if __name__ == \"__main__\":\n",
-    "    main()"
-   ]
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python [conda env:base] *",
-   "language": "python",
-   "name": "conda-base-py"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.12.7"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
+import streamlit as st
+import math
+
+def calculate_volume(diameter, length, unit):
+    radius = diameter / 2
+    volume_cubic = math.pi * (radius ** 2) * length
+    
+    if unit == "mm":
+        # 从mm³转换为升
+        volume_liters = volume_cubic / 1_000_000
+    else:  # inch
+        # 从inch³转换为升 (1 inch³ = 0.0163871升)
+        volume_liters = volume_cubic * 0.0163871
+    
+    return volume_liters
+
+def main():
+    st.title("圆柱桩载体体积计算器（单位：升）")
+    st.write("输入直径和长度来计算圆柱体积（结果统一为升）")
+    
+    # 单位选择
+    unit = st.radio("选择输入单位:", ("mm", "inch"))
+    
+    # 输入字段
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        diameter = st.number_input(f"直径 ({unit})", min_value=0.0, value=100.0, step=0.1)
+    
+    with col2:
+        length = st.number_input(f"长度 ({unit})", min_value=0.0, value=1000.0, step=0.1)
+    
+    # 计算按钮
+    if st.button("计算体积"):
+        volume_liters = calculate_volume(diameter, length, unit)
+        
+        st.success("计算结果:")
+        st.write(f"圆柱体积: {volume_liters:,.3f} 升")
+        
+        # 显示中间计算过程（可选）
+        with st.expander("查看详细计算"):
+            st.write(f"直径: {diameter} {unit}")
+            st.write(f"长度: {length} {unit}")
+            st.write(f"半径: {diameter/2} {unit}")
+            st.write(f"原始体积: {math.pi * ((diameter/2) ** 2) * length:,.2f} {unit}³")
+
+if __name__ == "__main__":
+    main()
